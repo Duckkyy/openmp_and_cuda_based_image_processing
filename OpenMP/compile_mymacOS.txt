@@ -1,0 +1,18 @@
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-basic-2.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-basic-2.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o opencv-omp-basic-2
+./opencv-omp-basic-2 test.tif
+
+
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-basic.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-basic.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o opencv-omp-basic
+./opencv-omp-basic test.tif
+
+
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-basic-color.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-basic-color.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o opencv-omp-basic-color
+./opencv-omp-basic-color test.tif
+
+
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-histogram.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
+/opt/homebrew/opt/llvm/bin/clang++ opencv-omp-histogram.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o opencv-omp-histogram
+./opencv-omp-histogram test.tif

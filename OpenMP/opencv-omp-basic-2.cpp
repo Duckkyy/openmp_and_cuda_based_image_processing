@@ -20,14 +20,13 @@ int main( int argc, char** argv )
       omp_set_num_threads(t);
       auto begin = chrono::high_resolution_clock::now();
       
-      for (int it=0;it<iter;it++)
-	{
-#pragma omp parallel for
-	  for (int i=0;i<source.rows;i++)
-	    //#pragma omp parallel for
-	    for (int j=0;j<source.cols;j++)
-	    	  destination(i,j) = 255.0*cos((255-source(i,j))/255.0);
-	}
+      for (int it=0;it<iter;it++) {
+      #pragma omp parallel for
+	      for (int i=0;i<source.rows;i++)
+	      //#pragma omp parallel for
+	        for (int j=0;j<source.cols;j++)
+            destination(i,j) = 255.0*cos((255-source(i,j))/255.0);
+    }
       auto end = std::chrono::high_resolution_clock::now();
       std::chrono::duration<double> diff = end-begin;
 
