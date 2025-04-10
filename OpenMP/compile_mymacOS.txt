@@ -20,4 +20,8 @@
 
 /opt/homebrew/opt/llvm/bin/clang++ anaglyph.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
 /opt/homebrew/opt/llvm/bin/clang++ anaglyph.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o anaglyph
-./anaglyph test.tif true
+./anaglyph test.jpg true
+
+/opt/homebrew/opt/llvm/bin/clang++ gaussian_filter.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
+/opt/homebrew/opt/llvm/bin/clang++ gaussian_filter.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o gaussian_filter
+./gaussian_filter test.jpg color
