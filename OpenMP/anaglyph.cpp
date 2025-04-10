@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 
     string anaglyph_type = argv[2];
     vector<string> anaglyph_types = {"true", "gray", "color", "half_color", "optimized"};
-    if (std::find(anaglyph_types.begin(), anaglyph_types.end(), anaglyph_type) == anaglyph_types.end()) {
+    if (find(anaglyph_types.begin(), anaglyph_types.end(), anaglyph_type) == anaglyph_types.end()) {
         cout << "Invalid anaglyph type! Use 'true', 'gray', 'color', 'half_color', or 'optimized'." << endl;
         return -1;
     }
@@ -73,23 +73,23 @@ int main(int argc, char** argv)
     }
 
     auto end = chrono::high_resolution_clock::now();
-    std::chrono::duration<double> diff = end - begin;
+    chrono::duration<double> diff = end - begin;
 
     cv::imshow("Anaglyph Image", anaglyph);
     if (anaglyph_type == "true") {
-        cv::imwrite("anaglyph_result/true_anaglyph.jpg", anaglyph);
+        cv::imwrite("result_images/true_anaglyph.jpg", anaglyph);
     }
     else if (anaglyph_type == "gray") {
-        cv::imwrite("anaglyph_result/gray_anaglyph.jpg", anaglyph);
+        cv::imwrite("result_images/gray_anaglyph.jpg", anaglyph);
     }
     else if (anaglyph_type == "color") {
-        cv::imwrite("anaglyph_result/color_anaglyph.jpg", anaglyph);
+        cv::imwrite("result_images/color_anaglyph.jpg", anaglyph);
     }
     else if (anaglyph_type == "half_color") {
-        cv::imwrite("anaglyph_result/half_color_anaglyph.jpg", anaglyph);
+        cv::imwrite("result_images/half_color_anaglyph.jpg", anaglyph);
     }
     else if (anaglyph_type == "optimized") {
-        cv::imwrite("anaglyph_result/optimized_anaglyph.jpg", anaglyph);
+        cv::imwrite("result_images/optimized_anaglyph.jpg", anaglyph);
     }
     
     cout << "Total time: " << diff.count() << " s" << endl;
