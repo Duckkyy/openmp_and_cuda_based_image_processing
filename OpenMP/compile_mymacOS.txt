@@ -16,3 +16,8 @@
 /opt/homebrew/opt/llvm/bin/clang++ opencv-omp-histogram.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
 /opt/homebrew/opt/llvm/bin/clang++ opencv-omp-histogram.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o opencv-omp-histogram
 ./opencv-omp-histogram test.tif
+
+
+/opt/homebrew/opt/llvm/bin/clang++ anaglyph.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
+/opt/homebrew/opt/llvm/bin/clang++ anaglyph.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o anaglyph
+./anaglyph test.tif true
