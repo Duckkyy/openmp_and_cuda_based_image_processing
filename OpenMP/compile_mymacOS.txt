@@ -25,3 +25,7 @@
 /opt/homebrew/opt/llvm/bin/clang++ gaussian_filter.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
 /opt/homebrew/opt/llvm/bin/clang++ gaussian_filter.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o gaussian_filter
 ./gaussian_filter test.jpg color
+
+/opt/homebrew/opt/llvm/bin/clang++ denoising.cpp -fopenmp -isysroot $(xcrun --show-sdk-path) `pkg-config opencv4 --cflags` -c
+/opt/homebrew/opt/llvm/bin/clang++ denoising.o -fopenmp -isysroot $(xcrun --show-sdk-path) -stdlib=libc++ `pkg-config opencv4 --libs` -L/opt/homebrew/opt/llvm/lib -lomp -o denoising
+./denoising noise.jpg 5 3
