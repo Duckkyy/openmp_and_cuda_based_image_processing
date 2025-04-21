@@ -298,7 +298,7 @@ int main( int argc, char** argv )
     // cv::imshow("Gaussian + " + anaglyph_name + " Anaglyph Image", anaglyph_image);
 
     // Save the anaglyph image
-    std::string filename =  "results/share_memory" + anaglyph_name + "Anaglyph-blurred.jpg";
+    std::string filename =  "results/share_memory/" + anaglyph_name + "Anaglyph-blurred.jpg";
     cv::imwrite(filename, anaglyph_image);
 
     std::string blurred_img_name =  "results/share_memory/blurred.jpg";
