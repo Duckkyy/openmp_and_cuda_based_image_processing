@@ -181,13 +181,13 @@ int main(int argc, char** argv) {
     std::chrono::duration<double> diff = end - begin;
 
     // Display the anaglyph image
-    cv::imshow(anaglyph_name + " Anaglyph Image", anaglyph_image);
+    // cv::imshow(anaglyph_name + " Anaglyph Image", anaglyph_image);
 
     // Display the original images
-    cv::imshow("Input Image", stereo_image);
+    // cv::imshow("Input Image", stereo_image);
 
     // Save the anaglyph image
-    std::string filename = "output/2.1.1/" + anaglyph_name + "Anaglyph.jpg";
+    std::string filename = "results/" + anaglyph_name + "Anaglyph.jpg";
     cv::imwrite(filename, anaglyph_image);
 
     // Display performance metrics
