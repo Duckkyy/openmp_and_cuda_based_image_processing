@@ -161,10 +161,6 @@ int main(int argc, char** argv) {
     cout << "Time for 1 iteration: " << diff.count() / iter << " s" << endl;
     cout << "IPS: " << iter / diff.count() << endl;
 
-    // Display the original and processed images
-    // cv::imshow("Original Image", input_img);
-    // cv::imshow("Denoised Image", denoised_image);
-
     // Save the anaglyph image
     std::string filename =  "results/denoised.jpg";
     cv::imwrite(filename, denoised_image);
