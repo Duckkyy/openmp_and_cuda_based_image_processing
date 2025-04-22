@@ -94,7 +94,11 @@ int main(int argc, char** argv) {
 
     auto begin = chrono::high_resolution_clock::now();
 
-    cv::Mat result = denoisingGaussianFilter(image, neighborhoodSize, factorRatio);
+    const int iter = 500;
+    cv::Mat result;
+    for (int it = 0; it < iter; it++) {
+        result = denoisingGaussianFilter(image, neighborhoodSize, factorRatio);
+    }
 
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end - begin;

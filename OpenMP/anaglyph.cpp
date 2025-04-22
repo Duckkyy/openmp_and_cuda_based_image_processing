@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     cv::Mat anaglyph(leftImage.rows, leftImage.cols, CV_8UC3);
 
     auto begin = chrono::high_resolution_clock::now();
-    const int iter = 500;
+    const int iter = 10000;
 
     for (int it = 0; it < iter; it++) {
         #pragma omp parallel for

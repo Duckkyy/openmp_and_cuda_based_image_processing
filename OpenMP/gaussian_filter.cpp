@@ -132,7 +132,7 @@ int main(int argc, char** argv)
     auto begin = chrono::high_resolution_clock::now();
 
     cv::Mat anaglyph;
-    const int iter = 500;
+    const int iter = 10000;
     try {
         anaglyph = generateAnaglyph(source, anaglyph_type, iter);
     } catch (const exception& e) {
