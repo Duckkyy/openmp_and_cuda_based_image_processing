@@ -74,8 +74,6 @@ __global__ void applyGaussianBlurKernel(const cv::cuda::PtrStepSz<uchar3> src, c
 __global__ void processKernel(const cv::cuda::PtrStep<uchar3> left_image,
                               const cv::cuda::PtrStep<uchar3> right_image,
                               cv::cuda::PtrStep<uchar3> anaglyph_image,
-                              int rows,
-                              int cols,
                               int anaglyph_type) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
