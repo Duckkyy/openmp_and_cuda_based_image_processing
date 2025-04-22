@@ -22,7 +22,7 @@ enum AnaglyphType {
     OPTIMIZED
 };
 
-__global__ void generateGaussianKernel(double* gaussKernel, int kernelSize, double sigma) {
+__global__ void generateGaussianKernelKernel(double* gaussKernel, int kernelSize, double sigma) {
     const int x = blockIdx.x * blockDim.x + threadIdx.x;
     const int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -71,48 +71,61 @@ __global__ void applyGaussianBlurKernel(const cv::cuda::PtrStepSz<uchar3> src, c
     }
 }
 
-__global__ void processKernel(const cv::cuda::PtrStep<uchar3> left_image,
-                              const cv::cuda::PtrStep<uchar3> right_image,
-                              cv::cuda::PtrStep<uchar3> anaglyph_image,
-                              int anaglyph_type) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+__global__ void processKernel(const cv::cuda::PtrStepSz<uchar3> left_image,
+                                     const cv::cuda::PtrStepSz<uchar3> right_image,
+                                     cv::cuda::PtrStepSz<uchar3> anaglyph_image,
+                                     int anaglyph_type) {
+    const int x = blockIdx.x * blockDim.x + threadIdx.x;
+    const int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x < cols && y < rows) {
+    if (x < left_image.cols && y < left_image.rows) {
         uchar3 left_pixel = left_image(y, x);
         uchar3 right_pixel = right_image(y, x);
 
-        uchar3 result_pixel;
-
         if (anaglyph_type == TRUE) {
-            result_pixel = make_uchar3(
+            anaglyph_image(y, x) = make_uchar3(
                 0.299f * right_pixel.z + 0.578f * right_pixel.y + 0.114f * right_pixel.x,
                 0,
                 0.299f * left_pixel.z + 0.578f * left_pixel.y + 0.114f * left_pixel.x
             );
-        } else if (anaglyph_type == GRAY) {
-            float gray_right = 0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z;
-            float gray_left = 0.299f * left_pixel.x + 0.578f * left_pixel.y + 0.114f * left_pixel.z;
-            result_pixel = make_uchar3(gray_right, gray_right, gray_left);
-        } else if (anaglyph_type == COLOR) {
-            result_pixel = make_uchar3(right_pixel.x, right_pixel.y, left_pixel.z);
-        } else if (anaglyph_type == HALFCOLOR) {
-            result_pixel = make_uchar3(
+            return;
+        }
+        else if (anaglyph_type == GRAY) {
+            anaglyph_image(y, x) = make_uchar3(
+                0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
+                0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
+                0.299f * left_pixel.x + 0.578f * left_pixel.y + 0.114f * left_pixel.z
+            );
+            return;
+        }
+        else if (anaglyph_type == COLOR) {
+            anaglyph_image(y, x) = make_uchar3(
+                right_pixel.x,
+                right_pixel.y,
+                left_pixel.z
+            );
+            return;
+        }
+        else if (anaglyph_type == HALFCOLOR) {
+            anaglyph_image(y, x) = make_uchar3(
                 0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
                 right_pixel.y,
                 left_pixel.z
             );
-        } else if (anaglyph_type == OPTIMIZED) {
-            result_pixel = make_uchar3(
+            return;
+        }
+        else if (anaglyph_type == OPTIMIZED) {
+            anaglyph_image(y, x) = make_uchar3(
                 0.7f * right_pixel.y + 0.3f * right_pixel.x,
                 right_pixel.y,
                 left_pixel.z
             );
-        } else {
-            result_pixel = left_pixel;
+            return;
         }
-
-        anaglyph_image(y, x) = result_pixel;
+        else {
+            anaglyph_image(y, x) = left_pixel;
+            return;
+        }        
     }
 }
 
@@ -217,7 +230,7 @@ int main( int argc, char** argv )
     dim3 blockSize(16, 16);
     dim3 gridSize((kernelSize + blockSize.x - 1) / blockSize.x, (kernelSize + blockSize.y - 1) / blockSize.y);
 
-    generateGaussianKernel<<<gridSize, blockSize>>>(gaussKernel, kernelSize, sigma);
+    generateGaussianKernelKernel<<<gridSize, blockSize>>>(gaussKernel, kernelSize, sigma);
 
     cv::Mat anaglyph_image, blurred_image;
 
@@ -227,7 +240,7 @@ int main( int argc, char** argv )
     auto begin = chrono::high_resolution_clock::now();
 
     // Number of iterations
-    const int iter = 1000;
+    const int iter = 500;
 
     for (int it = 0; it < iter; it++) {
         d_left_image.upload(left_image);
