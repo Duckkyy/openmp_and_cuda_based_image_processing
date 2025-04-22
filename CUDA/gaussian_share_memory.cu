@@ -107,51 +107,50 @@ __global__ void processKernel(const cv::cuda::PtrStepSz<uchar3> left_image,
         uchar3 left_pixel = left_image(dst_y, dst_x);
         uchar3 right_pixel = right_image(dst_y, dst_x);
 
-        switch (anaglyph_type) {
-            case TRUE:
-                // True Anaglyphs
-                anaglyph_image(dst_y, dst_x) = make_uchar3(
-                    0.299f * right_pixel.z + 0.578f * right_pixel.y + 0.114f * right_pixel.x,
-                    0,
-                    0.299f * left_pixel.z + 0.578f * left_pixel.y + 0.114f * left_pixel.x
-                );
-                break;
-            case GRAY:
-                // Gray Anaglyphs
-                anaglyph_image(dst_y, dst_x) = make_uchar3(
-                    0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
-                    0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
-                    0.299f * left_pixel.x + 0.578f * left_pixel.y + 0.114f * left_pixel.z
-                );
-                break;
-            case COLOR:
-                // Color Anaglyphs
-                anaglyph_image(dst_y, dst_x) = make_uchar3(
-                    right_pixel.x,
-                    right_pixel.y,
-                    left_pixel.z
-                );
-                break;
-            case HALFCOLOR:
-                // Half Color Anaglyphs
-                anaglyph_image(dst_y, dst_x) = make_uchar3(
-                    0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
-                    right_pixel.y,
-                    left_pixel.z
-                );
-                break;
-            case OPTIMIZED:
-                // Optimized Anaglyphs
-                anaglyph_image(dst_y, dst_x) = make_uchar3(
-                    0.7f * right_pixel.y + 0.3f * right_pixel.x,
-                    right_pixel.y,
-                    left_pixel.z
-                );
-                break;
-            default:
-                // No Anaglyphs
-                anaglyph_image(dst_y, dst_x) = left_pixel;
+        if (anaglyph_type == TRUE) {
+            anaglyph_image(y, x) = make_uchar3(
+                0.299f * right_pixel.z + 0.578f * right_pixel.y + 0.114f * right_pixel.x,
+                0,
+                0.299f * left_pixel.z + 0.578f * left_pixel.y + 0.114f * left_pixel.x
+            );
+            return;
         }
+        else if (anaglyph_type == GRAY) {
+            anaglyph_image(y, x) = make_uchar3(
+                0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
+                0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
+                0.299f * left_pixel.x + 0.578f * left_pixel.y + 0.114f * left_pixel.z
+            );
+            return;
+        }
+        else if (anaglyph_type == COLOR) {
+            anaglyph_image(y, x) = make_uchar3(
+                right_pixel.x,
+                right_pixel.y,
+                left_pixel.z
+            );
+            return;
+        }
+        else if (anaglyph_type == HALFCOLOR) {
+            anaglyph_image(y, x) = make_uchar3(
+                0.299f * right_pixel.x + 0.578f * right_pixel.y + 0.114f * right_pixel.z,
+                right_pixel.y,
+                left_pixel.z
+            );
+            return;
+        }
+        else if (anaglyph_type == OPTIMIZED) {
+            anaglyph_image(y, x) = make_uchar3(
+                0.7f * right_pixel.y + 0.3f * right_pixel.x,
+                right_pixel.y,
+                left_pixel.z
+            );
+            return;
+        }
+        else {
+            anaglyph_image(y, x) = left_pixel;
+            return;
+        }        
     }
 }
 
@@ -222,24 +221,19 @@ int main( int argc, char** argv )
         return -1;
     }
     std::string anaglyph_name;
-    switch (anaglyph_type) {
-        case TRUE:
-            anaglyph_name = "True";
-            break;
-        case GRAY:
-            anaglyph_name = "Gray";
-            break;
-        case COLOR:
-            anaglyph_name = "Color";
-            break;
-        case HALFCOLOR:
-            anaglyph_name = "Half Color";
-            break;
-        case OPTIMIZED:
-            anaglyph_name = "Optimized";
-            break;
-        default:
-            anaglyph_name = "None";
+
+    if (anaglyph_type == TRUE) {
+        anaglyph_name = "True";
+    } else if (anaglyph_type == GRAY) {
+        anaglyph_name = "Gray";
+    } else if (anaglyph_type == COLOR) {
+        anaglyph_name = "Color";
+    } else if (anaglyph_type == HALFCOLOR) {
+        anaglyph_name = "Half Color";
+    } else if (anaglyph_type == OPTIMIZED) {
+        anaglyph_name = "Optimized";
+    } else {
+        anaglyph_name = "None";
     }
 
     cv::Mat left_image(stereo_image, cv::Rect(0, 0, stereo_image.cols / 2, stereo_image.rows));
@@ -289,13 +283,6 @@ int main( int argc, char** argv )
 
     // Calculate the time difference
     chrono::duration<double> diff = end - begin;
-
-    // Display the original images
-    // cv::imshow("Input Image", stereo_image);
-
-    // Display the output image
-    // cv::imshow("Gaussian Blurred Image", blurred_image);
-    // cv::imshow("Gaussian + " + anaglyph_name + " Anaglyph Image", anaglyph_image);
 
     // Save the anaglyph image
     std::string filename =  "results/share_memory/" + anaglyph_name + "Anaglyph-blurred.jpg";
