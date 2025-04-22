@@ -127,15 +127,16 @@ int main(int argc, char** argv) {
     }
 
     auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> elapsed = end - start;
+    chrono::duration<double> diff = end - start;
 
     // Save the result
     string output_filename = "results/anaglyph_result.jpg";
     cv::imwrite(output_filename, anaglyph_image);
 
     // Display performance metrics
-    cout << "Processed " << iterations << " iterations in " << elapsed.count() << " seconds." << endl;
-    cout << "Average time per iteration: " << elapsed.count() / iterations << " seconds." << endl;
+    cout << "Total time for " << iter << " iterations: " << diff.count() << " s" << endl;
+    cout << "Time for 1 iteration: " << diff.count() / iter << " s" << endl;
+    cout << "IPS: " << iter / diff.count() << endl;
 
     return 0;
 }
