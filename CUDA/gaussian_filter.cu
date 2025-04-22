@@ -130,7 +130,7 @@ __global__ void mergeImagesKernel(cv::cuda::PtrStepSz<uchar3> leftImage, cv::cud
 
 int divUp(int a, int b)
 {
-  return ((a % b) != 0) ? (a / b + 1) : (a / b);
+    return ((a % b) != 0) ? (a / b + 1) : (a / b);
 }
 
 void processCUDA(const cv::cuda::GpuMat& d_left_image,
@@ -229,7 +229,7 @@ int main( int argc, char** argv )
     auto begin = chrono::high_resolution_clock::now();
 
     // Number of iterations
-    const int iter = 10000;
+    const int iter = 1000;
 
     for (int it = 0; it < iter; it++) {
         d_left_image.upload(left_image);
@@ -246,13 +246,6 @@ int main( int argc, char** argv )
 
     // Calculate the time difference
     chrono::duration<double> diff = end - begin;
-
-    // Display the original images
-    // cv::imshow("Input Image", stereo_image);
-
-    // Display the output image
-    // cv::imshow("Gaussian Blurred Image", blurred_image);
-    // cv::imshow("Gaussian + " + anaglyph_name + " Anaglyph Image", anaglyph_image);
 
     // Save the anaglyph image
     std::string filename =  "results/" + anaglyph_name + "Anaglyph-blurred.jpg";
