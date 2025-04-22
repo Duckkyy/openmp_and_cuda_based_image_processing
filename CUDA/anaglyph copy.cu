@@ -118,10 +118,10 @@ int main(int argc, char** argv) {
     d_anaglyph_image.create(left_image.size(), left_image.type());
 
     // Measure performance
-    const int iter = 100;
+    const int iterations = 100;
     auto start = chrono::high_resolution_clock::now();
 
-    for (int i = 0; i < iter; ++i) {
+    for (int i = 0; i < iterations; ++i) {
         processCUDA(d_left_image, d_right_image, d_anaglyph_image, left_image.rows, left_image.cols, anaglyph_type);
         d_anaglyph_image.download(anaglyph_image);
     }
