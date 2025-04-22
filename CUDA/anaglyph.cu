@@ -1,16 +1,20 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/cudawarping.hpp>
+#include <cfloat>
+#include <opencv2/cudawarping.hpp>
 #include <opencv2/core/cuda/common.hpp>
+#include <opencv2/core/cuda/border_interpolate.hpp>
+#include <opencv2/core/cuda/vec_traits.hpp>
+#include <opencv2/core/cuda/vec_math.hpp>
 #include <string>
 #include <cmath>
-#include <chrono>
+#include <chrono>  // for high_resolution_clock
 
 #include "helper_math.h"
 
 using namespace std;
 
-// Enum for different anaglyph types
 enum AnaglyphType {
     NORMAL = 0,
     TRUE,
@@ -20,7 +24,6 @@ enum AnaglyphType {
     OPTIMIZED
 };
 
-// CUDA kernel for processing anaglyphs
 __global__ void processKernel(const cv::cuda::PtrStep<uchar3> left_image,
                               const cv::cuda::PtrStep<uchar3> right_image,
                               cv::cuda::PtrStep<uchar3> anaglyph_image,
@@ -68,21 +71,20 @@ __global__ void processKernel(const cv::cuda::PtrStep<uchar3> left_image,
     }
 }
 
-// Utility function to calculate grid size
-int divUp(int a, int b) {
-    return (a + b - 1) / b;
+int divUp(int a, int b)
+{
+  return ((a % b) != 0) ? (a / b + 1) : (a / b);
 }
 
-// Function to process anaglyphs using CUDA
 void processCUDA(const cv::cuda::GpuMat& d_left_image,
                  const cv::cuda::GpuMat& d_right_image,
                  cv::cuda::GpuMat& d_anaglyph_image,
                  int rows,
                  int cols,
                  int anaglyph_type) {
-    dim3 block(32, 8);
-    dim3 grid(divUp(cols, block.x), divUp(rows, block.y));
+    const dim3 block(32, 8);
 
+    const dim3 grid(divUp(cols, block.x), divUp(rows, block.y));
     processKernel<<<grid, block>>>(d_left_image, d_right_image, d_anaglyph_image, rows, cols, anaglyph_type);
 }
 
@@ -92,51 +94,83 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    // Load stereo image
     cv::Mat stereo_image = cv::imread(argv[1], cv::IMREAD_COLOR);
+
+    AnaglyphType anaglyph_type = static_cast<AnaglyphType>(atoi(argv[2]));
+
     if (stereo_image.empty()) {
         cerr << "Error: Unable to load image." << endl;
         return -1;
     }
 
-    // Parse anaglyph type
-    int anaglyph_type = atoi(argv[2]);
     if (anaglyph_type < NORMAL || anaglyph_type > OPTIMIZED) {
         cerr << "Error: Invalid anaglyph type." << endl;
+        cerr << "Anaglyph types:" << endl;
+        cerr << "0: None Anaglyphs" << endl;
+        cerr << "1: True Anaglyphs" << endl;
+        cerr << "2: Gray Anaglyphs" << endl;
+        cerr << "3: Color Anaglyphs" << endl;
+        cerr << "4: Half Color Anaglyphs" << endl;
+        cerr << "5: Optimized Anaglyphs" << endl;
         return -1;
     }
 
-    // Split stereo image into left and right images
     cv::Mat left_image(stereo_image, cv::Rect(0, 0, stereo_image.cols / 2, stereo_image.rows));
     cv::Mat right_image(stereo_image, cv::Rect(stereo_image.cols / 2, 0, stereo_image.cols / 2, stereo_image.rows));
+
     cv::Mat anaglyph_image;
 
-    // Upload images to GPU
+    std::string anaglyph_name;
+
+    if (anaglyph_type == TRUE) {
+        anaglyph_name = "True";
+    } else if (anaglyph_type == GRAY) {
+        anaglyph_name = "Gray";
+    } else if (anaglyph_type == COLOR) {
+        anaglyph_name = "Color";
+    } else if (anaglyph_type == HALFCOLOR) {
+        anaglyph_name = "Half Color";
+    } else if (anaglyph_type == OPTIMIZED) {
+        anaglyph_name = "Optimized";
+    } else {
+        anaglyph_name = "None";
+    }
+
     cv::cuda::GpuMat d_left_image, d_right_image, d_anaglyph_image;
-    d_left_image.upload(left_image);
-    d_right_image.upload(right_image);
-    d_anaglyph_image.create(left_image.size(), left_image.type());
 
-    // Measure performance
-    const int iter = 100;
-    auto start = chrono::high_resolution_clock::now();
+    // Start the timer
+    auto begin = chrono::high_resolution_clock::now();
 
-    for (int i = 0; i < iter; ++i) {
+    // Number of iterations
+    const int iter = 1000;
+
+    for (int it = 0; it < iter; it++) {
+        d_left_image.upload(left_image);
+        d_right_image.upload(right_image);
+        d_anaglyph_image.upload(left_image);
+
         processCUDA(d_left_image, d_right_image, d_anaglyph_image, left_image.rows, left_image.cols, anaglyph_type);
+
         d_anaglyph_image.download(anaglyph_image);
     }
 
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> diff = end - start;
+    // Stop the timer
+    auto end = std::chrono::high_resolution_clock::now();
 
-    // Save the result
-    string output_filename = "results/anaglyph_result.jpg";
-    cv::imwrite(output_filename, anaglyph_image);
+    // Calculate the time difference
+    std::chrono::duration<double> diff = end - begin;
+
+    // Save the anaglyph image
+    std::string filename = "results/" + anaglyph_name + "Anaglyph.jpg";
+    cv::imwrite(filename, anaglyph_image);
 
     // Display performance metrics
     cout << "Total time for " << iter << " iterations: " << diff.count() << " s" << endl;
     cout << "Time for 1 iteration: " << diff.count() / iter << " s" << endl;
     cout << "IPS: " << iter / diff.count() << endl;
+
+    // Wait for a key press before closing the windows
+    cv::waitKey();
 
     return 0;
 }
