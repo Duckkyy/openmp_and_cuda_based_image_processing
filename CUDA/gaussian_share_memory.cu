@@ -100,12 +100,12 @@ __global__ void processKernel(const cv::cuda::PtrStepSz<uchar3> left_image,
                                      const cv::cuda::PtrStepSz<uchar3> right_image,
                                      cv::cuda::PtrStepSz<uchar3> anaglyph_image,
                                      int anaglyph_type) {
-    const int dst_x = blockIdx.x * blockDim.x + threadIdx.x;
-    const int dst_y = blockIdx.y * blockDim.y + threadIdx.y;
+    const int x = blockIdx.x * blockDim.x + threadIdx.x;
+    const int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (dst_x < left_image.cols && dst_y < left_image.rows) {
-        uchar3 left_pixel = left_image(dst_y, dst_x);
-        uchar3 right_pixel = right_image(dst_y, dst_x);
+    if (x < left_image.cols && y < left_image.rows) {
+        uchar3 left_pixel = left_image(y, x);
+        uchar3 right_pixel = right_image(y, x);
 
         if (anaglyph_type == TRUE) {
             anaglyph_image(y, x) = make_uchar3(
